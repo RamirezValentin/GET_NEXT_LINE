@@ -41,7 +41,7 @@ char *buftostash(int fd, char *stash)
     char buf[BUFFER_SIZE + 1];    
     int ret;
     char *tmp = NULL;
-    if (stash == NULL)
+    if (stash == NULL)// pour allouer que la premiere fois lorsque stash est vide
     {
         stash = malloc(sizeof(char) * 1);
         if(stash == NULL)
@@ -50,19 +50,14 @@ char *buftostash(int fd, char *stash)
     }
     while((ret = read(fd, buf, BUFFER_SIZE)) > 0)
     {
-        buf[ret] = '\0';
-        tmp = stash;
+        buf[ret] = '\0'; //ajout du null byte a la fin de la ligne buf [ret] = le nb de char lu via read
+        tmp = stash; // si on le mettais apres strjoin on perdrais la valeur de stash
         stash = ft_strjoin(stash, buf);
         free(tmp);
         if(stash == NULL)
             return NULL;
-        if(ft_strchr(stash, '\n')) //si il y a un retour a la ligne on s'arrete la (en gros c'est une sécurité pour si le buffer fait la meme taille que la ligne)
+        if(ft_strchr(stash, '\n')) //si il y a un retour a la ligne on s'arrete la (en gros c'est une sécurité pour si le buffer fait la meme taille que la ligne). en gros il va juste faire + d appel a la fonction pour que ca fonctionne
             break;
-    }
-    if(ret < 0)
-    {
-        free(stash);
-        return NULL;
     }
     return stash;
 }
@@ -76,7 +71,7 @@ char *stashtoline(int i, char **stash)  //pointeur vers un char*
     if((*stash)[i] == '\n')  // on déréférence afin de réavoir le stash
     {
         line = malloc(sizeof(char) * (i + 2)); // +2 pour inclure '\n' et '\0' qui sont apres le premier '\n'
-        if(line == NULL)
+        if(line == NULL) 
             return NULL;
         ft_bzero(line, i + 2);
         while(j <= i) // <= et pas < pour que ca prenne le '\n' qui est a la toute fin après le premier '\n' 
@@ -124,8 +119,10 @@ char *get_next_line(int fd)
     return NULL;
     // Extract from buff to stash
     stash = buftostash(fd, stash);
-        if(stash == NULL)
+        if(stash == NULL){
+            free(line);
             return NULL;
+        }
     // Extract line from stash
      while((stash)[i] && (stash)[i] != '\n')
         i++;    
@@ -135,6 +132,10 @@ char *get_next_line(int fd)
     { 
 		line = ifstashnotnull(stash);
 		stash = NULL;
+    }
+    if (line == NULL && stash != NULL && stash[0] == '\0') {// Lorsque get_next_line termine, si le fichier a été entièrement lu et que la fonction retourne NULL, il peut rester un bloc de mémoire alloué pour stash qui n'est jamais libéré. Cela peut se produire si stash est vide ("") mais toujours alloué.
+        free(stash);
+        stash = NULL;
     }
     return line;
 }
