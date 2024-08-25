@@ -66,3 +66,14 @@ char *ft_strchr(const char *s, int c)
 
     return NULL;                  // si ca ne trouve rien ca retourn NULL
 }
+void *ft_memcpy(void *dest, const void *src, size_t n){
+    unsigned const char *pSRC = src;
+    unsigned char *pDEST = dest;
+    unsigned int i = 0;
+
+    while(i<n){
+        pDEST[i] = pSRC[i];     
+        i++;
+    }
+    return pDEST;
+}

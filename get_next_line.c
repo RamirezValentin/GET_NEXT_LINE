@@ -38,7 +38,9 @@ char *clean_stash(char *stash)
 
 char *buftostash(int fd, char *stash)
 {
-    char buf[BUFFER_SIZE + 1];    
+    char *buf = malloc(sizeof(char) * (BUFFER_SIZE + 1)); //le malloc car sinon si le buffer_size est trop grand ca va dépasser la limite de la stack
+        if(!buf)
+            return NULL;    
     int ret;
     char *tmp = NULL;
     if (stash == NULL)// pour allouer que la premiere fois lorsque stash est vide
@@ -59,6 +61,7 @@ char *buftostash(int fd, char *stash)
         if(ft_strchr(stash, '\n')) //si il y a un retour a la ligne on s'arrete la (en gros c'est une sécurité pour si le buffer fait la meme taille que la ligne). en gros il va juste faire + d appel a la fonction pour que ca fonctionne
             break;
     }
+    free(buf);
     return stash;
 }
 
