@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #ifndef BUFFER_SIZE
-#  define BUFFER_SIZE 10
+#  define BUFFER_SIZE 5
 #endif
 
 void ft_bzero(void *s, size_t n);

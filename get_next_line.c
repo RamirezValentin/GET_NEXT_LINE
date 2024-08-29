@@ -43,6 +43,7 @@ char *buftostash(int fd, char *stash)
             return NULL;    
     int ret;
     char *tmp = NULL;
+    // printf("%sAAAA\n", stash);
     if (stash == NULL)// pour allouer que la premiere fois lorsque stash est vide
     {
         stash = malloc(sizeof(char) * 1);
@@ -58,7 +59,7 @@ char *buftostash(int fd, char *stash)
         free(tmp);
         if(stash == NULL)
             return NULL;
-        if(ft_strchr(stash, '\n')) //si il y a un retour a la ligne on s'arrete la (en gros c'est une sécurité pour si le buffer fait la meme taille que la ligne). en gros il va juste faire + d appel a la fonction pour que ca fonctionne
+        if(ft_strchr(stash, '\n')) //si il y a un retour a la ligne on s'arrete la (en gros c'est une sécurité pour si le buffer fait la meme taille que la ligne). en gros il va juste faire + d appel a la fonction pour que ca fonctionne. En gros si je ne fais pas ca ca prends le premier retour a la ligne mais ca le garde dans stash et donc ca le fait 2 fois.
             break;
     }
     free(buf);
@@ -143,18 +144,18 @@ char *get_next_line(int fd)
     return line;
 }
 
-// int main()
-// {
-//     int fd;
-//     char *str;
-//     fd = open("simple.txt", O_RDONLY);
+int main()
+{
+    int fd;
+    char *str;
+    fd = open("simple.txt", O_RDONLY);
 
-//     while((str = get_next_line(fd)) != NULL)
-//     {
-//         printf("%s\n", str);
-//         free(str);
-//     }
+    while((str = get_next_line(fd)) != NULL)
+    {
+        printf("%s\n", str);
+        free(str);
+    }
 
-//     close(fd);
-//     return 0;
-// }
+    close(fd);
+    return 0;
+}
