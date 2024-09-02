@@ -59,8 +59,6 @@ char *buftostash(int fd, char *stash)
         free(tmp);
         if(stash == NULL)
             return NULL;
-        if(ft_strchr(stash, '\n')) //si il y a un retour a la ligne on s'arrete la (en gros c'est une sécurité pour si le buffer fait la meme taille que la ligne). en gros il va juste faire + d appel a la fonction pour que ca fonctionne. En gros si je ne fais pas ca ca prends le premier retour a la ligne mais ca le garde dans stash et donc ca le fait 2 fois.
-            break;
     }
     free(buf);
     return stash;
@@ -71,7 +69,7 @@ char *stashtoline(int i, char **stash)  //pointeur vers un char*
     char *line = NULL;
     int j;
     j = 0;
-
+    // printf("8%s8\n", *stash);
     if((*stash)[i] == '\n')  // on déréférence afin de réavoir le stash
     {
         line = malloc(sizeof(char) * (i + 2)); // +2 pour inclure '\n' et '\0' qui sont apres le premier '\n'
@@ -119,8 +117,10 @@ char *get_next_line(int fd)
     static char *stash = NULL;
     char *line = NULL; 
     int i = 0;
-    if(fd < 0 || BUFFER_SIZE <= 0 || read(fd, &line, 0) < 0)
+    if(fd < 0 || BUFFER_SIZE <= 0 || read(fd, &line, 0) < 0){
+    stash = NULL;
     return NULL;
+    }
     // Extract from buff to stash
     stash = buftostash(fd, stash);
         if(stash == NULL){
@@ -132,7 +132,7 @@ char *get_next_line(int fd)
         i++;    
     line = stashtoline(i,&stash); 
     //si stash n'est pas null : 
-    if(line == NULL && stash[0] != '\0')
+    if(line == NULL && stash[0] != '\0' && stash != NULL)
     { 
 		line = ifstashnotnull(stash);
 		stash = NULL;
@@ -144,18 +144,56 @@ char *get_next_line(int fd)
     return line;
 }
 
-int main()
+int main(void)
 {
     int fd;
     char *str;
-    fd = open("simple.txt", O_RDONLY);
+    fd = open("read_error.txt", O_RDONLY);
 
-    while((str = get_next_line(fd)) != NULL)
-    {
-        printf("%s\n", str);
-        free(str);
-    }
+    str = get_next_line(fd);
+    printf("%-2d: expected \"%-10s\" -- got %s", 1, "aaaaaaaaaa", str);
+    free(str);
+    str = get_next_line(fd);
+    printf("%-2d: expected \"%-10s\" -- got %s", 2, "bbbbbbbbbb", str);
+    free(str);
 
+    close(fd);
+    str = get_next_line(fd);
+    printf("%-2d: expected \"%-10s\" -- got %s", 3, "(null)", str);
+    free(str);
+
+    fd = open("read_error.txt", O_RDONLY);
+
+    printf("\n");
+    str = get_next_line(fd);
+    printf("%-2d: expected \"%-10s\" -- got %s", 4, "aaaaaaaaaa", str);
+    free(str);
+    str = get_next_line(fd);
+    printf("%-2d: expected \"%-10s\" -- got %s", 5, "bbbbbbbbbb", str);
+    free(str);
+    str = get_next_line(fd);
+    printf("%-2d: expected \"%-10s\" -- got %s", 6, "cccccccccc", str);
+    free(str);
+    str = get_next_line(fd);
+    printf("%-2d: expected \"%-10s\" -- got %s", 7, "dddddddddd", str);
+    free(str);
+    str = get_next_line(fd);
+    printf("%-2d: expected \"%-10s\" -- got %s", 8, "(null)", str);
+    if (!str)
+        printf("\n");
+    free(str);
+    str = get_next_line(fd);
+    printf("%-2d: expected \"%-10s\" -- got %s", 9, "(null)", str);
+    if (!str)
+        printf("\n");
+    free(str);
+    str = get_next_line(fd);
+    printf("%-2d: expected \"%-10s\" -- got %s", 10, "(null)", str);
+    if (!str)
+        printf("\n");
+    free(str);
+
+    printf("\n");
     close(fd);
     return 0;
 }
