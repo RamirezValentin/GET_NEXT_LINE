@@ -118,6 +118,7 @@ char *get_next_line(int fd)
     char *line = NULL; 
     int i = 0;
     if(fd < 0 || BUFFER_SIZE <= 0 || read(fd, &line, 0) < 0){
+    free(stash);
     stash = NULL;
     return NULL;
     }
@@ -132,7 +133,7 @@ char *get_next_line(int fd)
         i++;    
     line = stashtoline(i,&stash); 
     //si stash n'est pas null : 
-    if(line == NULL && stash[0] != '\0' && stash != NULL)
+    if(line == NULL && stash[0] != '\0')
     { 
 		line = ifstashnotnull(stash);
 		stash = NULL;
